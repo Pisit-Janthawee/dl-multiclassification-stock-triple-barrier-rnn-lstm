@@ -1,0 +1,64 @@
+{
+  "test_log_loss": {
+    "Prior (class frequencies)": 1.099,
+    "Logistic Regression": 1.0671,
+    "LightGBM": 1.0714,
+    "SimpleRNN": 1.06,
+    "LSTM": 1.0717,
+    "GRU": 1.0636
+  },
+  "test_balanced_acc": {
+    "Prior (class frequencies)": 0.3333,
+    "Logistic Regression": 0.4045,
+    "LightGBM": 0.3988,
+    "SimpleRNN": 0.4094,
+    "LSTM": 0.4124,
+    "GRU": 0.4121
+  },
+  "backtest": {
+    "Buy & hold (same stocks)": {
+      "sharpe": 1.0604,
+      "cagr": 0.2688,
+      "max_drawdown": -0.2839,
+      "exposure": 1.0
+    },
+    "Logistic Regression": {
+      "sharpe": 0.7559,
+      "cagr": 0.039,
+      "max_drawdown": -0.0495,
+      "exposure": 0.585
+    },
+    "LightGBM": {
+      "sharpe": 0.3584,
+      "cagr": 0.0195,
+      "max_drawdown": -0.0977,
+      "exposure": 0.4791
+    },
+    "SimpleRNN": {
+      "sharpe": 0.6433,
+      "cagr": 0.0328,
+      "max_drawdown": -0.0309,
+      "exposure": 0.3872
+    },
+    "LSTM": {
+      "sharpe": 0.7769,
+      "cagr": 0.0686,
+      "max_drawdown": -0.0645,
+      "exposure": 0.7047
+    },
+    "GRU": {
+      "sharpe": 0.0997,
+      "cagr": 0.0043,
+      "max_drawdown": -0.0609,
+      "exposure": 0.5404
+    }
+  },
+  "random_entry_percentile_of_SimpleRNN": 79.0,
+  "thresholds": {
+    "GRU": 0.54,
+    "LSTM": 0.5,
+    "LightGBM": 0.46,
+    "Logistic Regression": 0.48,
+    "SimpleRNN": 0.58
+  }
+}
