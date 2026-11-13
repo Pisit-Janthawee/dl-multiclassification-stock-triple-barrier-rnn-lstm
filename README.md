@@ -83,7 +83,7 @@ Notebook 04 takes about 10 minutes with a GPU; the others take a few minutes eac
 
 ## Run on Kaggle
 
-[`kaggle/dl-multiclassification-stock-triple-barrier-rnn-lstm.ipynb`](kaggle/dl-multiclassification-stock-triple-barrier-rnn-lstm.ipynb) is notebooks 01 to 05 in one file, with `src/` written to disk in its first cells.
+[`kaggle/dl-multiclassification-stock-triple-barrier-rnn-lstm.ipynb`](kaggle/dl-multiclassification-stock-triple-barrier-rnn-lstm.ipynb) is a self-contained copy of notebooks 01 to 05 for Kaggle: one file, settings in the top cell, helper functions inline, no `src/` and no repo files needed.
 
 1. Kaggle → Create → **Import Notebook** → upload the file (or paste its GitHub URL)
 2. Settings → Accelerator **GPU T4**, Internet **On** (prices come from Yahoo Finance via `yfinance`)
