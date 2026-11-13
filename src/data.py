@@ -1,7 +1,7 @@
 """Download daily prices with yfinance and cache them as Parquet (data/raw is git-ignored)."""
 import pandas as pd
 
-from .config import END, MARKET, RAW_DIR, START, TICKERS
+from .config import END, MARKET, PROCESSED_DIR, RAW_DIR, START, TICKERS
 
 RAW_FILE = RAW_DIR / "prices.parquet"
 
@@ -27,10 +27,8 @@ def download_prices(tickers=None, start=START, end=END, refresh=False) -> pd.Dat
 
 
 def save_processed(df: pd.DataFrame, name: str) -> None:
-    from .config import PROCESSED_DIR
     df.to_parquet(PROCESSED_DIR / f"{name}.parquet", index=False)
 
 
 def load_processed(name: str) -> pd.DataFrame:
-    from .config import PROCESSED_DIR
     return pd.read_parquet(PROCESSED_DIR / f"{name}.parquet")
