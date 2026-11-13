@@ -14,6 +14,38 @@ a question a trader actually faces: **if I buy today, will the trade hit its tak
 **Conclusion:** the outcome is predictable slightly better than chance, mostly *whether* a stock will move enough to hit a
 barrier rather than *which way*. That edge does not turn into a trading rule that beats buy-and-hold.
 
+## Objective
+
+![pipeline](reports/figures/stock_pipeline.png)
+
+- **Problem** → most "stock prediction" notebooks predict tomorrow's price and report R² ≈ 0.99, yet copying yesterday's price scores the same: it looks smart and tells a trader nothing
+- **Why this repo** → ask the question a trader actually has, *"if I buy today, do I hit my take-profit, my stop-loss, or run out of time?"*, and test it without leaking the future
+- **Real-world use** → a sanity check before trusting any trading signal: label trades by outcome, purge overlapping samples, and compare against buy-and-hold and random entries
+
+## Highlights
+
+**Question:** can a model tell whether a trade will hit take-profit, stop-loss or time out?
+
+**Answer:** a little. The best log-loss is 1.060 against 1.099 for knowing nothing, and all five models (logistic regression, LightGBM, SimpleRNN, LSTM, GRU) are within 0.012. The models mostly learn *whether* a stock will move (volatility), not *which way*.
+
+![confusion matrix](reports/figures/05_confusion.png)
+
+**Question:** does that edge make money after costs?
+
+**Answer:** no. Model-picked trades hit take-profit 44-51 % of the time (34 % for all trades), but after 10 bp costs no rule beats buy-and-hold, and the best one beats only 79 % of random-entry runs.
+
+| Test 2024-01 to 2026-10 | Sharpe |
+|---|---|
+| Buy-and-hold, same stocks | 1.06 |
+| Long-only model rules | 0.10-0.78 |
+| Best model vs 200 random-entry runs | beats 79 % (not significant) |
+
+![backtest](reports/figures/05_backtest.png)
+
+**Question:** why do so many notebooks report great results?
+
+**Answer:** shuffled cross-validation. Neighbouring trades share most of their future days, so a shuffled split tests on near-copies: macro-F1 0.472 shuffled vs 0.394 purged with an embargo.
+
 ## Data
 
 Daily prices from Yahoo Finance via `yfinance`, 2010-01-01 to 2026-11-11, split and dividend adjusted:
@@ -42,6 +74,10 @@ volume, market context and a **fractionally differenced** price (stationary at $
 correlation with the price).
 
 **Split.** Train 2010-2021, validation 2022-2023, test 2024-2026.
+
+**Recurrent models.** Same 30-day window and head for SimpleRNN, LSTM and GRU:
+
+![architecture](reports/figures/stock_rnn_architecture.png)
 
 ## Notebooks
 
