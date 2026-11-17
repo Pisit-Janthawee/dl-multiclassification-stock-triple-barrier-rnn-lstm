@@ -68,6 +68,38 @@
     "Logistic Regression": 0.44,
     "SimpleRNN": 0.42
   },
+  "frequency_costs": {
+    "daily": {
+      "trades_per_year": 31.5877,
+      "gross_cagr": 0.0374,
+      "net_cagr_10bp": 0.0328,
+      "break_even_bps": 81.7061
+    },
+    "every 2 days": {
+      "trades_per_year": 23.8663,
+      "gross_cagr": 0.0109,
+      "net_cagr_10bp": 0.0075,
+      "break_even_bps": 31.9662
+    },
+    "weekly": {
+      "trades_per_year": 15.7939,
+      "gross_cagr": 0.0098,
+      "net_cagr_10bp": 0.0075,
+      "break_even_bps": 43.3269
+    },
+    "every 2 weeks": {
+      "trades_per_year": 8.7744,
+      "gross_cagr": 0.0022,
+      "net_cagr_10bp": 0.0009,
+      "break_even_bps": 17.5429
+    },
+    "monthly": {
+      "trades_per_year": 2.8078,
+      "gross_cagr": -0.0044,
+      "net_cagr_10bp": -0.0048,
+      "break_even_bps": 0.0
+    }
+  },
   "long_short": {
     "Logistic Regression": {
       "test_sharpe_long_only": 0.7559,

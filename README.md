@@ -83,6 +83,26 @@ Longs win more often than they lose; shorts lose more often than they win, and t
 
 ![equity curve](reports/figures/05_equity_curve.png)
 
+**Question:** does trading more often let the spread and slippage eat the edge?
+
+**Answer:** yes, the cost bill grows with every trade, but here the edge per trade matters more. I only have daily closes, so the real spread and slippage are **assumed** (0 to 100 bp per side). Everything else is fixed: the same SimpleRNN, the same 21 features, τ = 0.58, the same triple-barrier exits, long only. Only how often the rule may open a trade changes.
+
+| Check for a signal | Trades / year | Avg gross return / trade | CAGR at 0 / 10 / 20 bp | Break-even cost per side |
+|---|---|---|---|---|
+| daily (the backtest above) | 32 | +1.7 % | 3.7 / 3.3 / 2.8 % | 82 bp |
+| every 2 days | 24 | +0.6 % | 1.1 / 0.8 / 0.4 % | 32 bp |
+| weekly | 16 | +0.9 % | 1.0 / 0.8 / 0.5 % | 43 bp |
+| every 2 weeks | 9 | +0.4 % | 0.2 / 0.1 / -0.03 % | 18 bp |
+| monthly | 3 | -2.2 % | -0.4 / -0.5 / -0.5 % | 0 bp |
+
+- **The bill follows the count** → at 10 bp, 0.47 % a year for 32 trades vs 0.04 % for 3: about 0.014 % a year per trade ($2c$ per round trip × 1/14 of the capital)
+- **Break-even ≈ half the average gross return per trade** → +1.7 % per trade survives up to about 0.8 % per side; +0.4 % dies at about 0.2 %
+- **Trading less didn't help** → checking less often skips many of the model's best days, so the trades got worse faster than the costs shrank
+
+In short → the more often a strategy trades, the bigger the edge each trade needs. An intraday idea that earns 0.1 % per trade is gone at 5 bp per side.
+
+![trading frequency vs costs](reports/figures/05_frequency_costs.png)
+
 ## Backtesting is just another lie
 
 **Why not trust a nice equity curve?**
@@ -94,7 +114,7 @@ A backtest replays one past I already know, with rules I chose. The curve above 
 - **Picked model and threshold** → five models were tried; showing the best one with τ = 0.58 is already a choice, even if τ came from validation.
 - **The period teaches the rule** → shorting raised the validation Sharpe from 0.89 to 1.41 because 2022 fell, then cut the test Sharpe from 0.64 to 0.42 because 2024-2026 rose.
 - **Few lucky days** → about half of the long-only gain comes from April 2025, and its five best days add up to more than the whole gain.
-- **Easy execution** → fills at the close, 10 bp per side, no slippage, no gaps, no missed orders.
+- **Easy execution** → fills at the close, an assumed 10 bp per side, no gaps, no missed orders. The real spread and slippage are unknown; a rule that trades often and earns little per trade can flip from profit to loss on that guess alone.
 - **Low drawdown ≠ low risk** → the -3 % drawdown looks safe because the rule sits in cash most of the time (a position is open on only 39 % of days), not because it predicts crashes.
 
 In short → a backtest can only prove a strategy is bad, never that it is good. This one does not even beat holding the stocks.
@@ -156,7 +176,7 @@ A SimpleRNN ($h_t = \tanh(W_x x_t + W_h h_{t-1} + b)$) sends day 1's training si
 | [02 Triple-Barrier Labeling](notebooks/02_triple_barrier_labeling.ipynb) | Barriers, brute-force check, sensitivity, fixed-horizon comparison, uniqueness, CUSUM filter |
 | [03 Features & Purged Split](notebooks/03_features_and_split.ipynb) | Fractional differentiation, 21 features, Kruskal-Wallis effects, purged split |
 | [04 Modeling](notebooks/04_modeling.ipynb) | Prior, logistic regression, LightGBM, purged vs shuffled CV, SimpleRNN / LSTM / GRU |
-| [05 Evaluation & Backtest](notebooks/05_evaluation_backtest.ipynb) | Test metrics, confusion matrix, reliability, long-only and long + short backtests with costs, random-entry benchmark, SHAP |
+| [05 Evaluation & Backtest](notebooks/05_evaluation_backtest.ipynb) | Test metrics, confusion matrix, reliability, long-only and long + short backtests with costs, trading frequency vs assumed spread / slippage, random-entry benchmark, SHAP |
 
 ## Findings
 
