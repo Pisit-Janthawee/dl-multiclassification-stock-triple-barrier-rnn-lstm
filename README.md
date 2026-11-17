@@ -1,8 +1,7 @@
 # Stock Triple-Barrier Classification (RNN / LSTM / GRU)
 
-Second version of my stock forecasting project. The first version predicted the scaled closing price with RNN, LSTM and
-GRU models and reached R² ≈ 0.99, but copying yesterday's price scores R² 0.995–0.9996 on price levels too. This version asks
-a question a trader actually faces: **if I buy today, will the trade hit its take-profit, its stop-loss, or run out of time?**
+Many stock notebooks predict the scaled closing price with RNN, LSTM and GRU models and report R² ≈ 0.99, but copying
+yesterday's price scores R² 0.995–0.9996 on price levels too. This project asks a question a trader actually faces: **if I buy today, will the trade hit its take-profit, its stop-loss, or run out of time?**
 
 | Result on unseen data (2024-01 to 2026-10) | Value |
 |---|---|
