@@ -60,5 +60,49 @@
     "LightGBM": 0.46,
     "Logistic Regression": 0.48,
     "SimpleRNN": 0.58
+  },
+  "short_thresholds": {
+    "GRU": 0.4,
+    "LSTM": 0.54,
+    "LightGBM": 0.36,
+    "Logistic Regression": 0.44,
+    "SimpleRNN": 0.42
+  },
+  "long_short": {
+    "Logistic Regression": {
+      "test_sharpe_long_only": 0.7559,
+      "test_sharpe_long_short": 0.563,
+      "test_cagr_long_short": 0.0261,
+      "short_trades": 19,
+      "mean_short_return_%": -1.7351
+    },
+    "LightGBM": {
+      "test_sharpe_long_only": 0.3584,
+      "test_sharpe_long_short": 0.3127,
+      "test_cagr_long_short": 0.0144,
+      "short_trades": 58,
+      "mean_short_return_%": -0.3228
+    },
+    "SimpleRNN": {
+      "test_sharpe_long_only": 0.6433,
+      "test_sharpe_long_short": 0.4167,
+      "test_cagr_long_short": 0.0217,
+      "short_trades": 86,
+      "mean_short_return_%": -0.8197
+    },
+    "LSTM": {
+      "test_sharpe_long_only": 0.7769,
+      "test_sharpe_long_short": 0.8282,
+      "test_cagr_long_short": 0.068,
+      "short_trades": 14,
+      "mean_short_return_%": 0.9172
+    },
+    "GRU": {
+      "test_sharpe_long_only": 0.0997,
+      "test_sharpe_long_short": -0.6461,
+      "test_cagr_long_short": -0.0415,
+      "short_trades": 194,
+      "mean_short_return_%": -1.3673
+    }
   }
 }

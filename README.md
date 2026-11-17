@@ -47,6 +47,45 @@ In probability terms, $e^{-\text{log-loss}}$ is the typical probability given to
 
 ![backtest](reports/figures/05_backtest.png)
 
+**Question:** can the model also earn when it expects a fall (long and short)?
+
+**Answer:** no. The rule buys when P(take-profit) ≥ 0.58, and otherwise sells short when P(stop-loss) ≥ 0.42 (both thresholds fixed on validation). A short earns when the price falls, so its take-profit is the lower barrier and its stop-loss the upper one.
+
+| SimpleRNN rule, after 10 bp costs | Validation 2022-2023 Sharpe | Test 2024-2026 Sharpe |
+|---|---|---|
+| Long only | 0.89 | 0.64 |
+| Long + short | 1.41 | 0.42 |
+
+Shorting looked great on validation because 2022 fell. On the rising test period, the 86 short trades hit their take-profit only 33 % of the time and lost 0.8 % each on average. Only one of five models (LSTM, 0.78 → 0.83) gains from shorts on test.
+
+**Question:** where did the model trade, and where did each trade end?
+
+**Answer:** the two stocks with the most short trades. IBM rose most of the period, and 16 of its 27 shorts were stopped out. GOOGL mixes 15 longs and 8 shorts. Black ▲ = buy, white ▼ = sell short, green / grey / red dot = the trade's own take-profit / time-out / stop-loss, shaded band = holding period.
+
+![long and short trades on the price chart](reports/figures/05_trades_on_chart.png)
+
+**Question:** how does $1 grow, compared with simply holding the same stocks?
+
+**Answer:** $1 → about $1.10 long only (CAGR 3.3 %, max drawdown -3 %), about $1.07 long + short (CAGR 2.2 %, max drawdown -7 %), and about $1.97 for buy-and-hold (CAGR 26.9 %, max drawdown -28 %).
+
+![equity curve](reports/figures/05_equity_curve.png)
+
+## Backtesting is just another lie
+
+**Why not trust a nice equity curve?**
+
+A backtest replays one past I already know, with rules I chose. The curve above already hides several choices:
+
+- **One path** → 2024-2026 happened once. A different period (2022, 2008) could flip every number.
+- **Picked stocks** → 14 tech names chosen in hindsight, most of which went up (selection bias).
+- **Picked model and threshold** → five models were tried; showing the best one with τ = 0.58 is already a choice, even if τ came from validation.
+- **The period teaches the rule** → shorting raised the validation Sharpe from 0.89 to 1.41 because 2022 fell, then cut the test Sharpe from 0.64 to 0.42 because 2024-2026 rose.
+- **Few lucky days** → about half of the long-only gain comes from April 2025, and its five best days add up to more than the whole gain.
+- **Easy execution** → fills at the close, 10 bp per side, no slippage, no gaps, no missed orders.
+- **Low drawdown ≠ low risk** → the -3 % drawdown looks safe because the rule sits in cash most of the time (a position is open on only 39 % of days), not because it predicts crashes.
+
+In short → a backtest can only prove a strategy is bad, never that it is good. This one does not even beat holding the stocks.
+
 **Question:** why do so many notebooks report great results?
 
 **Answer:** shuffled cross-validation. Neighbouring trades share most of their future days, so a shuffled split tests on near-copies: macro-F1 0.472 shuffled vs 0.394 purged with an embargo.
@@ -104,7 +143,7 @@ A SimpleRNN ($h_t = \tanh(W_x x_t + W_h h_{t-1} + b)$) sends day 1's training si
 | [02 Triple-Barrier Labeling](notebooks/02_triple_barrier_labeling.ipynb) | Barriers, brute-force check, sensitivity, fixed-horizon comparison, uniqueness, CUSUM filter |
 | [03 Features & Purged Split](notebooks/03_features_and_split.ipynb) | Fractional differentiation, 21 features, Kruskal-Wallis effects, purged split |
 | [04 Modeling](notebooks/04_modeling.ipynb) | Prior, logistic regression, LightGBM, purged vs shuffled CV, SimpleRNN / LSTM / GRU |
-| [05 Evaluation & Backtest](notebooks/05_evaluation_backtest.ipynb) | Test metrics, confusion matrix, reliability, backtest with costs, random-entry benchmark, SHAP |
+| [05 Evaluation & Backtest](notebooks/05_evaluation_backtest.ipynb) | Test metrics, confusion matrix, reliability, long-only and long + short backtests with costs, random-entry benchmark, SHAP |
 
 ## Findings
 
@@ -114,6 +153,7 @@ A SimpleRNN ($h_t = \tanh(W_x x_t + W_h h_{t-1} + b)$) sends day 1's training si
 - **Volatility drives the model:** `vol_21` has twice the SHAP importance of any other feature.
 - **No tradable edge:** trades selected by the models hit take-profit 44-51 % of the time (34 % for all events), but after costs no
   rule beats buy-and-hold on Sharpe, and the best one sits inside the range of random entries.
+- **Shorting does not rescue it:** adding short trades helped on validation (2022 fell) and hurt on test for four of five models.
 
 ![Backtest](reports/figures/05_backtest.png)
 
@@ -121,7 +161,7 @@ A SimpleRNN ($h_t = \tanh(W_x x_t + W_h h_{t-1} + b)$) sends day 1's training si
 
 - The 14 stocks were chosen in hindsight and mostly rose (selection bias), which makes buy-and-hold a strong benchmark.
 - One test period (2024-2026, a strong market); walk-forward retraining would test other regimes.
-- Simple execution: trades at the close, 10 bp per side, no slippage model, no shorting.
+- Simple execution: trades at the close, 10 bp per side, no slippage model, no borrow fee for shorts.
 
 ## How to run
 

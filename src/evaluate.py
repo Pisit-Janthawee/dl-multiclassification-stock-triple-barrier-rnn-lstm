@@ -67,34 +67,43 @@ def score(y_true, proba, name="model", weights=None) -> dict:
 
 
 # ---------------------------------------------------------------- Backtest
-def backtest_long(events: pd.DataFrame, signal: pd.Series, prices: pd.DataFrame, cost_bps: float = 10.0):
-    """Long-only, one position per ticker at a time.
+def backtest(events: pd.DataFrame, side: pd.Series, prices: pd.DataFrame, cost_bps: float = 10.0):
+    """Long and/or short, one position per ticker at a time.
 
-    Enter at the close of the event day when `signal` is True and the ticker is flat; exit at the close
-    of t1 (barrier touch or vertical barrier). `cost_bps` is charged on entry and on exit.
+    `side` per event: +1 = buy (long), -1 = sell short, 0 = no trade. Enter at the close of the event day when
+    the ticker is flat; exit at the close of t1 (barrier touch or vertical barrier). A short earns the negative of
+    the stock's log return (no borrow fee). `cost_bps` is charged on entry and on exit.
     Returns (daily portfolio returns, trades). Portfolio = equal weight across tickers, idle cash earns 0.
+    Trade `outcome`: +1 = the trade's own take-profit (upper barrier for a long, lower barrier for a short),
+    -1 = its stop-loss, 0 = time-out.
     """
     trades, daily = [], {}
     close = prices.pivot(index="date", columns="ticker", values="close")
     rets = np.log(close).diff()
     cost = cost_bps / 1e4
-    for ticker, g in events[signal.reindex(events.index).fillna(False).to_numpy()].groupby("ticker"):
+    side = side.reindex(events.index).fillna(0).astype(int)
+    for ticker, g in events.assign(side=side.to_numpy())[side.to_numpy() != 0].groupby("ticker"):
         held = pd.Series(0.0, index=close.index)
         busy_until = pd.Timestamp.min
         for _, e in g.sort_values("date").iterrows():
             if e["date"] <= busy_until:
                 continue
             span = (close.index > e["date"]) & (close.index <= e["t1"])
-            held[span] = rets.loc[span, ticker]
+            held[span] = e["side"] * rets.loc[span, ticker]
             first, last = np.flatnonzero(span)[[0, -1]]
             held.iloc[first] -= cost
             held.iloc[last] -= cost
-            trades.append({"ticker": ticker, "entry": e["date"], "exit": e["t1"], "label": e["label"],
-                           "ret": held[span].sum()})
+            trades.append({"ticker": ticker, "side": int(e["side"]), "entry": e["date"], "exit": e["t1"],
+                           "label": e["label"], "outcome": int(e["side"] * e["label"]), "ret": held[span].sum()})
             busy_until = e["t1"]
         daily[ticker] = held
     daily = pd.DataFrame(daily).reindex(columns=events["ticker"].unique()).fillna(0.0)
     return daily, pd.DataFrame(trades)
+
+
+def backtest_long(events: pd.DataFrame, signal: pd.Series, prices: pd.DataFrame, cost_bps: float = 10.0):
+    """Long-only version of `backtest`: buy when `signal` is True."""
+    return backtest(events, signal.reindex(events.index).fillna(False).astype(int), prices, cost_bps)
 
 
 def performance(log_returns: pd.Series, periods: int = 252) -> dict:
