@@ -28,6 +28,10 @@ barrier rather than *which way*. That edge does not turn into a trading rule tha
 
 **Answer:** a little. The best log-loss is 1.060 against 1.099 for knowing nothing, and all five models (logistic regression, LightGBM, SimpleRNN, LSTM, GRU) are within 0.012. The models mostly learn *whether* a stock will move (volatility), not *which way*.
 
+In probability terms, $e^{-\text{log-loss}}$ is the typical probability given to what really happened: 0.346 for SimpleRNN against 0.333 for the prior.
+
+![log-loss edge](assets/m_logloss_edge.png)
+
 ![confusion matrix](reports/figures/05_confusion.png)
 
 **Question:** does that edge make money after costs?
@@ -62,7 +66,7 @@ The data is not committed; notebook 01 downloads it into `data/raw/`.
 | stop-loss | $P_0 \cdot e^{-0.75\,\sigma\sqrt{10}}$ | -1 |
 | time limit | 10 trading days | 0 |
 
-$\sigma$ is the stock's recent daily volatility, so barriers adapt to calm and turbulent periods. This gives 36 % take-profit,
+$\sigma$ is the stock's recent daily volatility (past returns only), so barriers adapt to calm and turbulent periods; $\sqrt{10}$ turns a daily move into a 10-day move, $m = 0.75$ sets the class mix, and the first barrier the close touches wins, so the label follows the path. This gives 36 % take-profit,
 35 % time-out and 29 % stop-loss. Labels were verified against a brute-force recomputation (300 events, 0 mismatches).
 
 **Overlapping labels.** Neighbouring events share most of their future days: the 53,592 events carry the information of about
@@ -78,6 +82,10 @@ correlation with the price).
 **Recurrent models.** Same 30-day window and head for SimpleRNN, LSTM and GRU:
 
 ![architecture](reports/figures/stock_rnn_architecture.png)
+
+A SimpleRNN ($h_t = \tanh(W_x x_t + W_h h_{t-1} + b)$) sends day 1's training signal back through tanh and $W_h$ 29 times, so it fades (vanishing gradient). LSTM and GRU update their memory by adding through gates (forget / input / output, or update / reset), so the signal can survive all 30 days. On this data that didn't help: the LSTM was the weakest learned model on validation log-loss.
+
+![vanishing gradient](assets/m_vanishing.png)
 
 ## Notebooks
 
