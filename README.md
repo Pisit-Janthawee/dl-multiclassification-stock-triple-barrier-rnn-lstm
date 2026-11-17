@@ -168,6 +168,34 @@ A SimpleRNN ($h_t = \tanh(W_x x_t + W_h h_{t-1} + b)$) sends day 1's training si
 
 ![vanishing gradient](assets/m_vanishing.png)
 
+**Backtest rules.** One position per stock, 1/14 of the capital each, enter at the close, exit at the first barrier or day 10:
+
+| Rule | Buy | Sell short |
+|---|---|---|
+| Long only | P(take-profit) ≥ τ (0.58 for SimpleRNN) | never |
+| Long + short | P(take-profit) ≥ τ | otherwise, if P(stop-loss) ≥ τ_short (0.42); its take-profit is the lower barrier |
+
+Both thresholds are chosen on validation, then frozen for the test period.
+
+**Trading frequency vs spread and slippage.** Daily closes can't show the real bid-ask spread or slippage, so the cost per side is **assumed**:
+
+| Assumed cost per side | When it is realistic |
+|---|---|
+| 0 bp | perfect world, no spread |
+| 2 bp | large US stocks, tight spread, patient limit orders |
+| 5 bp | half the spread plus a little slippage on a market order |
+| 10 bp | this project's default, on the safe side |
+| 20 bp | volatile days, smaller stocks, rushed orders |
+| 50 bp | illiquid stocks or very wide spreads |
+| 100 bp | stress test: where does the edge break? |
+
+How, in 3 steps:
+1. Keep everything from the main backtest: the same SimpleRNN, the same 21 features, τ = 0.58, the same triple-barrier exits, long only
+2. Allow a new buy only on every $k$-th trading day ($k$ = 1, 2, 5, 10, 21 → daily, every 2 days, weekly, every 2 weeks, monthly); $k$ = 1 is exactly the main backtest
+3. Charge the cost on entry and on exit, for every cost level
+
+$$\text{cost drag per year} \approx \text{trades per year} \times 2c \times \tfrac{1}{14}, \qquad \text{break-even } c \approx \tfrac{1}{2} \times \text{average gross return per trade}$$
+
 ## Notebooks
 
 | Notebook | Content |
@@ -187,6 +215,7 @@ A SimpleRNN ($h_t = \tanh(W_x x_t + W_h h_{t-1} + b)$) sends day 1's training si
 - **No tradable edge:** trades selected by the models hit take-profit 44-51 % of the time (34 % for all events), but after costs no
   rule beats buy-and-hold on Sharpe, and the best one sits inside the range of random entries.
 - **Shorting does not rescue it:** adding short trades helped on validation (2022 fell) and hurt on test for four of five models.
+- **Costs grow with every trade:** with the same model and exits, the cost bill at 10 bp is 0.47 % a year for 32 trades vs 0.04 % for 3. The rule breaks even at about half its average gross return per trade (82 bp per side when checking daily, 18 bp every 2 weeks).
 
 ![Backtest](reports/figures/05_backtest.png)
 
@@ -194,7 +223,7 @@ A SimpleRNN ($h_t = \tanh(W_x x_t + W_h h_{t-1} + b)$) sends day 1's training si
 
 - The 14 stocks were chosen in hindsight and mostly rose (selection bias), which makes buy-and-hold a strong benchmark.
 - One test period (2024-2026, a strong market); walk-forward retraining would test other regimes.
-- Simple execution: trades at the close, 10 bp per side, no slippage model, no borrow fee for shorts.
+- Simple execution: trades at the close, no borrow fee for shorts. Spread and slippage are not measured; they are assumed (10 bp per side by default, 0-100 bp in the cost experiment).
 
 ## How to run
 
