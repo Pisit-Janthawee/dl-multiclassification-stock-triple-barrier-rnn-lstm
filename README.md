@@ -64,6 +64,19 @@ Shorting looked great on validation because 2022 fell. On the rising test period
 
 ![long and short trades on the price chart](reports/figures/05_trades_on_chart.png)
 
+All 14 stocks, test period (return of one position, which holds 1/14 of the capital, after 10 bp per side; holding time in trading days):
+
+| Trades | Long | Short | All |
+|---|---|---|---|
+| Number of trades | 89 | 86 | 175 |
+| Take-profit / time-out / stop-loss | 52 % / 18 % / 30 % | 33 % / 26 % / 42 % | 42 % / 22 % / 36 % |
+| Win rate (return > 0) | 63 % | 47 % | 55 % |
+| Average return per trade | +1.5 % | -0.6 % | +0.5 % |
+| Average / median holding | 5.4 / 4 days | 5.9 / 6 days | 5.6 / 5 days |
+| Best / worst trade | +18.5 % / -12.6 % | +24.6 % / -20.4 % | +24.6 % / -20.4 % |
+
+Longs win more often than they lose; shorts lose more often than they win, and they hold a little longer because a short's take-profit (a fall) is rarer in a rising market.
+
 **Question:** how does $1 grow, compared with simply holding the same stocks?
 
 **Answer:** $1 → about $1.10 long only (CAGR 3.3 %, max drawdown -3 %), about $1.07 long + short (CAGR 2.2 %, max drawdown -7 %), and about $1.97 for buy-and-hold (CAGR 26.9 %, max drawdown -28 %).
