@@ -37,6 +37,16 @@ In probability terms, $e^{-\text{log-loss}}$ is the typical probability given to
 
 **Question:** does that edge make money after costs?
 
+> **What is a bp?** A basis point (bp) is one hundredth of a percent: **1 bp = 0.01 % = 1 / 10,000**. Trading costs are quoted in bp because they are tiny per trade but add up.
+>
+> | Example | Calculation | Result |
+> |---|---|---|
+> | 10 bp on a $10,000 trade | $10,000 × 0.0010 | $10 |
+> | 10 bp on a $714 position (this README's example) | $714 × 0.0010 | $0.71 per side, $1.43 to buy and sell |
+> | 10 bp on one $200 share | $200 × 0.0010 | $0.20 |
+> | A spread: bid $199.98, ask $200.02 | ($200.02 − $199.98) / $200 | $0.04 = 2 bp; buying at the ask and selling at the bid costs about 1 bp each way |
+> | 100 bp | 100 × 0.01 % | 1 % |
+
 **Answer:** no. Model-picked trades hit take-profit 44-51 % of the time (34 % for all trades), but after 10 bp costs no rule beats buy-and-hold, and the best one beats only 79 % of random-entry runs.
 
 | Test 2024-01 to 2026-10 | Sharpe |
