@@ -56,7 +56,7 @@ In probability terms, $e^{-\text{log-loss}}$ is the typical probability given to
 | Long only | 0.89 | 0.64 |
 | Long + short | 1.41 | 0.42 |
 
-Shorting looked great on validation because 2022 fell. On the rising test period, the 86 short trades hit their take-profit only 33 % of the time and lost 0.8 % each on average. Only one of five models (LSTM, 0.78 → 0.83) gains from shorts on test.
+Shorting looked great on validation because 2022 fell. On the rising test period, the 86 short trades hit their take-profit only 33 % of the time and lost 0.8 % each on average (about $6 on a $714 position, see the dollar note below). Only one of five models (LSTM, 0.78 → 0.83) gains from shorts on test.
 
 **Question:** where did the model trade, and where did each trade end?
 
@@ -64,22 +64,30 @@ Shorting looked great on validation because 2022 fell. On the rising test period
 
 ![long and short trades on the price chart](reports/figures/05_trades_on_chart.png)
 
-All 14 stocks, test period (return of one position, which holds 1/14 of the capital, after 10 bp per side; holding time in trading days):
+**In dollars** → all USD figures below use an example account of **$10,000**, split equally across the 14 stocks, so one position is about **$714**. The percentages are what the backtest measures; the dollars are just those percentages applied to this account.
+
+All 14 stocks, test period (return of one $714 position after 10 bp per side; holding time in trading days):
 
 | Trades | Long | Short | All |
 |---|---|---|---|
 | Number of trades | 89 | 86 | 175 |
 | Take-profit / time-out / stop-loss | 52 % / 18 % / 30 % | 33 % / 26 % / 42 % | 42 % / 22 % / 36 % |
 | Win rate (return > 0) | 63 % | 47 % | 55 % |
-| Average return per trade | +1.5 % | -0.6 % | +0.5 % |
+| Average return per trade | +1.5 % (+$11) | -0.6 % (-$4) | +0.5 % (+$4) |
 | Average / median holding | 5.4 / 4 days | 5.9 / 6 days | 5.6 / 5 days |
-| Best / worst trade | +18.5 % / -12.6 % | +24.6 % / -20.4 % | +24.6 % / -20.4 % |
+| Best / worst trade | +18.5 % (+$132) / -12.6 % (-$90) | +24.6 % (+$176) / -20.4 % (-$145) | +24.6 % (+$176) / -20.4 % (-$145) |
 
 Longs win more often than they lose; shorts lose more often than they win, and they hold a little longer because a short's take-profit (a fall) is rarer in a rising market.
 
 **Question:** how does $1 grow, compared with simply holding the same stocks?
 
-**Answer:** $1 → about $1.10 long only (CAGR 3.3 %, max drawdown -3 %), about $1.07 long + short (CAGR 2.2 %, max drawdown -7 %), and about $1.97 for buy-and-hold (CAGR 26.9 %, max drawdown -28 %).
+**Answer:** over the 2.85-year test period, after 10 bp costs per side:
+
+| Strategy | $1 becomes | $10,000 becomes | CAGR | Max drawdown |
+|---|---|---|---|---|
+| Buy-and-hold, same 14 stocks | $1.97 | $19,705 (+$9,705) | 26.9 % | -28 % from its peak |
+| SimpleRNN long only | $1.10 | $10,962 (+$962) | 3.3 % | -3 % |
+| SimpleRNN long + short | $1.06 | $10,631 (+$631) | 2.2 % | -7 % |
 
 ![equity curve](reports/figures/05_equity_curve.png)
 
@@ -87,19 +95,23 @@ Longs win more often than they lose; shorts lose more often than they win, and t
 
 **Answer:** yes, the cost bill grows with every trade, but here the edge per trade matters more. I only have daily closes, so the real spread and slippage are **assumed** (0 to 100 bp per side). Everything else is fixed: the same SimpleRNN, the same 21 features, τ = 0.58, the same triple-barrier exits, long only. Only how often the rule may open a trade changes.
 
-| Check for a signal | Trades / year | Avg gross return / trade | CAGR at 0 / 10 / 20 bp | Break-even cost per side |
-|---|---|---|---|---|
-| daily (the backtest above) | 32 | +1.7 % | 3.7 / 3.3 / 2.8 % | 82 bp |
-| every 2 days | 24 | +0.6 % | 1.1 / 0.8 / 0.4 % | 32 bp |
-| weekly | 16 | +0.9 % | 1.0 / 0.8 / 0.5 % | 43 bp |
-| every 2 weeks | 9 | +0.4 % | 0.2 / 0.1 / -0.03 % | 18 bp |
-| monthly | 3 | -2.2 % | -0.4 / -0.5 / -0.5 % | 0 bp |
+In dollars, on the $10,000 example account ($714 per position), 10 bp per side = **$0.71 to buy + $0.71 to sell = $1.43 per trade**.
 
-- **The bill follows the count** → at 10 bp, 0.47 % a year for 32 trades vs 0.04 % for 3: about 0.014 % a year per trade ($2c$ per round trip × 1/14 of the capital)
-- **Break-even ≈ half the average gross return per trade** → +1.7 % per trade survives up to about 0.8 % per side; +0.4 % dies at about 0.2 %
+| Check for a signal | Trades / year | Avg gross gain / trade | Cost bill / year at 10 bp | Profit / year at 0 / 10 / 20 bp | Break-even cost per side |
+|---|---|---|---|---|---|
+| daily (the backtest above) | 32 | +1.7 % (+$12.00) | $47 | $374 / $328 / $281 | 82 bp ($5.84) |
+| every 2 days | 24 | +0.6 % (+$4.57) | $34 | $109 / $75 / $41 | 32 bp ($2.28) |
+| weekly | 16 | +0.9 % (+$6.29) | $23 | $98 / $75 / $53 | 43 bp ($3.09) |
+| every 2 weeks | 9 | +0.4 % (+$2.64) | $12 | $22 / $9 / -$3 | 18 bp ($1.25) |
+| monthly | 3 | -2.2 % (-$15.71) | $4 | -$44 / -$48 / -$52 | 0 bp ($0) |
+
+Profit per year = CAGR × $10,000. Buy-and-hold made about $2,690 a year on the same account (CAGR 26.9 %).
+
+- **The bill follows the count** → at 10 bp, $47 a year for 32 trades vs $4 for 3: about $1.43 per trade, i.e. 0.014 % of the account a year per trade ($2c$ per round trip × 1/14 of the capital)
+- **Break-even ≈ half the average gross gain per trade** → a trade that earns $12.00 survives costs up to about $5.84 per side (82 bp); one that earns $2.64 dies at about $1.25 (18 bp)
 - **Trading less didn't help** → checking less often skips many of the model's best days, so the trades got worse faster than the costs shrank
 
-In short → the more often a strategy trades, the bigger the edge each trade needs. An intraday idea that earns 0.1 % per trade is gone at 5 bp per side.
+In short → the more often a strategy trades, the bigger the edge each trade needs. An intraday idea that earns 0.1 % per trade ($0.71 on $714) is gone at 5 bp per side ($0.36 + $0.36).
 
 ![trading frequency vs costs](reports/figures/05_frequency_costs.png)
 
@@ -179,15 +191,17 @@ Both thresholds are chosen on validation, then frozen for the test period.
 
 **Trading frequency vs spread and slippage.** Daily closes can't show the real bid-ask spread or slippage, so the cost per side is **assumed**:
 
-| Assumed cost per side | When it is realistic |
-|---|---|
-| 0 bp | perfect world, no spread |
-| 2 bp | large US stocks, tight spread, patient limit orders |
-| 5 bp | half the spread plus a little slippage on a market order |
-| 10 bp | this project's default, on the safe side |
-| 20 bp | volatile days, smaller stocks, rushed orders |
-| 50 bp | illiquid stocks or very wide spreads |
-| 100 bp | stress test: where does the edge break? |
+1 bp (basis point) = 0.01 %. In dollars, on a $714 position (a $10,000 account split over 14 stocks) and per share of a $200 stock:
+
+| Assumed cost per side | Per side on $714 | Round trip on $714 | Per share at $200 | When it is realistic |
+|---|---|---|---|---|
+| 0 bp | $0 | $0 | $0 | perfect world, no spread |
+| 2 bp | $0.14 | $0.29 | $0.04 | large US stocks, tight spread, patient limit orders |
+| 5 bp | $0.36 | $0.71 | $0.10 | half the spread plus a little slippage on a market order |
+| 10 bp | $0.71 | $1.43 | $0.20 | this project's default, on the safe side |
+| 20 bp | $1.43 | $2.86 | $0.40 | volatile days, smaller stocks, rushed orders |
+| 50 bp | $3.57 | $7.14 | $1.00 | illiquid stocks or very wide spreads |
+| 100 bp | $7.14 | $14.29 | $2.00 | stress test: where does the edge break? |
 
 How, in 3 steps:
 1. Keep everything from the main backtest: the same SimpleRNN, the same 21 features, τ = 0.58, the same triple-barrier exits, long only
@@ -215,7 +229,7 @@ $$\text{cost drag per year} \approx \text{trades per year} \times 2c \times \tfr
 - **No tradable edge:** trades selected by the models hit take-profit 44-51 % of the time (34 % for all events), but after costs no
   rule beats buy-and-hold on Sharpe, and the best one sits inside the range of random entries.
 - **Shorting does not rescue it:** adding short trades helped on validation (2022 fell) and hurt on test for four of five models.
-- **Costs grow with every trade:** with the same model and exits, the cost bill at 10 bp is 0.47 % a year for 32 trades vs 0.04 % for 3. The rule breaks even at about half its average gross return per trade (82 bp per side when checking daily, 18 bp every 2 weeks).
+- **Costs grow with every trade:** with the same model and exits, the cost bill at 10 bp is 0.47 % a year for 32 trades vs 0.04 % for 3 ($47 vs $4 on a $10,000 account). The rule breaks even at about half its average gross return per trade (82 bp per side when checking daily, 18 bp every 2 weeks; $5.84 vs $1.25 on a $714 position).
 
 ![Backtest](reports/figures/05_backtest.png)
 
