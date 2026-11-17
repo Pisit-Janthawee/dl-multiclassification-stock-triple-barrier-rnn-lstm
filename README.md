@@ -18,6 +18,8 @@ barrier rather than *which way*. That edge does not turn into a trading rule tha
 
 ![pipeline](reports/figures/stock_pipeline.png)
 
+Phases 1-2 are built here; the faded Phases 3-7 (signal threshold, regime filter, risk manager, executor, monitor) are a guideline for turning the model's probabilities into a full trading loop.
+
 - **Problem** → most "stock prediction" notebooks predict tomorrow's price and report R² ≈ 0.99, yet copying yesterday's price scores the same: it looks smart and tells a trader nothing
 - **Why this repo** → ask the question a trader actually has, *"if I buy today, do I hit my take-profit, my stop-loss, or run out of time?"*, and test it without leaking the future
 - **Real-world use** → a sanity check before trusting any trading signal: label trades by outcome, purge overlapping samples, and compare against buy-and-hold and random entries
@@ -68,6 +70,14 @@ The data is not committed; notebook 01 downloads it into `data/raw/`.
 
 $\sigma$ is the stock's recent daily volatility (past returns only), so barriers adapt to calm and turbulent periods; $\sqrt{10}$ turns a daily move into a 10-day move, $m = 0.75$ sets the class mix, and the first barrier the close touches wins, so the label follows the path. This gives 36 % take-profit,
 35 % time-out and 29 % stop-loss. Labels were verified against a brute-force recomputation (300 events, 0 mismatches).
+
+Three example trades per outcome, from a calm (2016), a turbulent (2020) and a recent (2023) year:
+
+![triple-barrier examples](reports/figures/02_examples.png)
+
+Every day is a possible trade; here each start day is coloured by how its 10-day trade ended:
+
+![labelled timeline](reports/figures/02_label_timeline.png)
 
 **Overlapping labels.** Neighbouring events share most of their future days: the 53,592 events carry the information of about
 8,300 independent trades. Models are trained with **uniqueness weights**, and the time split is **purged** (events whose outcome
