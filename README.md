@@ -31,7 +31,7 @@ Phases 1-2 are built here; the faded Phases 3-7 (signal threshold, regime filter
 
 In probability terms, $e^{-\text{log-loss}}$ is the typical probability given to what really happened: 0.346 for SimpleRNN against 0.333 for the prior.
 
-![log-loss edge](assets/m_logloss_edge.png)
+![log-loss edge](assets/png/m_logloss_edge.png)
 
 ![confusion matrix](reports/figures/05_confusion.png)
 
@@ -188,7 +188,7 @@ correlation with the price).
 
 A SimpleRNN ($h_t = \tanh(W_x x_t + W_h h_{t-1} + b)$) sends day 1's training signal back through tanh and $W_h$ 29 times, so it fades (vanishing gradient). LSTM and GRU update their memory by adding through gates (forget / input / output, or update / reset), so the signal can survive all 30 days. On this data that didn't help: the LSTM was the weakest learned model on validation log-loss.
 
-![vanishing gradient](assets/m_vanishing.png)
+![vanishing gradient](assets/png/m_vanishing.png)
 
 **Backtest rules.** One position per stock, 1/14 of the capital each, enter at the close, exit at the first barrier or day 10:
 
